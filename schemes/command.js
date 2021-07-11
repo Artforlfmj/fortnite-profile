@@ -2,6 +2,7 @@
 const Discord = require("discord.js"); //this is the official discord.js wrapper for the Discord Api, which we use!
 const config = require("../../botconfig/config.json");
 const ee = require("../../botconfig/embed.json");
+const profile = require('../../schemes/profiledata')
 module.exports = {
     name: "",
     category: "",
