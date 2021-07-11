@@ -17,7 +17,7 @@ module.exports = {
         if(userprofile === null){
             if(!args.length){
                 const embed = new Discord.MessageEmbed()
-                .setColor(ee.color)
+                .setColor(ee.wrongcolor)
                 .setTitle(`Parameter name missing`)
                 .setThumbnail("https://img.icons8.com/color/452/error--v1.png")
                 .setDescription(`${message.author.username}, please provide your fortnite account name using the format\n**s!register [ACCOUNT NAME]**`)
@@ -33,7 +33,7 @@ module.exports = {
                 })
                 .catch(e => {
                     const embed = new Discord.MessageEmbed()
-                    .setColor(ee.color)
+                    .setColor(ee.wrongcolor)
                     .setTitle("An error occured")
                     .setThumbnail("https://img.icons8.com/color/452/error--v1.png")
                     .setDescription("An error occured with the request. If you believe this is a problem please contact me <@634099784428552213> or try again later.")
@@ -45,37 +45,49 @@ module.exports = {
                         id : message.author.id,
                         account : accountid.data.account_id
                     })
+                    const checkifnew = await profile.find({account : accountid.data.account_id})
+                    if(checkifnew === null){
+                        const name = await get("https://fortniteapi.io/v1/stats", {
+                            params : {
+                                account : accountid.data.account_id
+                            },
+                            headers : {
+                                Authorization : config["fnapi.io"]
+                            }
+                        })
+                        const cos = await get("https://fortniteapi.io/v2/items/list?lang=fr", {
+                            params : {
+                                type : "outfit"
+                            },
+                            headers : {
+                                Authorization : config["fnapi.io"]
+                            }
+                        })
+                        
+                        const random = cos.data.items[Math.floor(Math.random() * cos.data.items.length)]
+                        
+                        const embed = new Discord.MessageEmbed()
+                        .setColor(ee.color)
+                        .setTitle("You are well registered!")
+                        .setDescription(`You have been registered with the ${name.data.name} account`)
+                        .setThumbnail(random.images.icon)
+                        message.channel.send(embed)
+                        newprofile.save()
+                    } else {
+                        
+                        const embed = new Discord.MessageEmbed()
+                        .setThumbnail("https://img.icons8.com/color/452/error--v1.png")
+                        .setTitle("Somebody already registered that account")
+                        .setColor(ee.wrongcolor)
+                        .setDescription(`To register this account you must log it out from the user to whom it is linked. If you are the owner of this account and cannot access it please contact a staff who will handle the request`)
+                        message.channel.send(embed)
+                    }
 
-                    const name = await get("https://fortniteapi.io/v1/stats", {
-                        params : {
-                            account : accountid.data.account_id
-                        },
-                        headers : {
-                            Authorization : config["fnapi.io"]
-                        }
-                    })
-                    const cos = await get("https://fortniteapi.io/v2/items/list?lang=fr", {
-                        params : {
-                            type : "outfit"
-                        },
-                        headers : {
-                            Authorization : config["fnapi.io"]
-                        }
-                    })
-                    
-                    const random = cos.data.items[Math.floor(Math.random() * cos.data.items.length)]
-                    
-                    const embed = new Discord.MessageEmbed()
-                    .setColor(ee.color)
-                    .setTitle("You are well registered!")
-                    .setDescription(`You have been registered with the ${name.data.name} account`)
-                    .setThumbnail(random.images.icon)
-                    message.channel.send(embed)
-                    newprofile.save()
+                   
                     
                 } else {
                     const embed = new Discord.MessageEmbed()
-                    .setColor(ee.color)
+                    .setColor(ee.wrongcolor)
                     .setTitle("An error occured")
                     .setThumbnail("https://img.icons8.com/color/452/error--v1.png")
                     .setDescription(accountid.data.error)
